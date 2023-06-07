@@ -11,23 +11,37 @@ export default class App extends Component {
     filter: '',
   };
 
+  componentDidMount() {
+    const contacts = localStorage.getItem('contacts');
+    if (contacts) {
+      this.setState({ contacts: JSON.parse(contacts) });
+    }
+  }
+
+  componentDidUpdate(_, prevState) {
+    if (prevState.contacts !== this.state.contacts) {
+      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+    }
+  }
+
   addNewContact = (sentContact) => {
-    
-    const isExist = this.state.contacts.find((contact) => (contact.name === sentContact.name || contact.number === sentContact.number) );
+    const isExist = this.state.contacts.find(
+      (contact) => contact.name === sentContact.name || contact.number === sentContact.number
+    );
     if (isExist) {
       alert('Such contact already exists!');
       return;
     }
-    
+
     console.log('Writing new user!');
     const user = {
       id: nanoid(),
       name: sentContact.name,
       number: sentContact.number,
     };
-    this.setState((prefState) => ({
-      contacts: [...prefState.contacts, user]
-    }))
+    this.setState((prevState) => ({
+      contacts: [...prevState.contacts, user],
+    }));
   };
 
   onFilterChange = (event) => {
@@ -37,14 +51,14 @@ export default class App extends Component {
 
   getFilteredContacts = () => {
     const { filter, contacts } = this.state;
-    return contacts.filter(contact =>
+    return contacts.filter((contact) =>
       contact.name.toLowerCase().includes(filter.toLowerCase())
     );
   };
 
   deleteContactById = (id) => {
-    this.setState(prefState => ({
-      contacts: prefState.contacts.filter(contact => contact.id !== id),
+    this.setState((prevState) => ({
+      contacts: prevState.contacts.filter((contact) => contact.id !== id),
     }));
   };
 
@@ -67,7 +81,7 @@ export default class App extends Component {
               />
             </>
           ) : (
-            <p>No contacts found yet. Please add new contact!</p>
+            <p>No contacts found yet. Please add a new contact!</p>
           )}
         </Section>
       </div>
